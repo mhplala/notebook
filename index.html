@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>📒 佳璇的学习笔记</title>
+<title>📒 李解万物小笔记</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
 
@@ -59,6 +59,29 @@
     color: var(--dim);
     margin-top: 4px;
   }
+
+  /* 搜索框 */
+  .search-box {
+    padding: 12px 16px 0;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 8px 12px 8px 32px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    background: var(--card-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238a8580' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") no-repeat 10px center;
+    outline: none;
+    color: var(--text);
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--dim); }
+
+  .search-highlight { background: rgba(193,127,89,0.25); border-radius: 2px; padding: 0 1px; }
 
   /* 分类筛选 */
   .category-filters {
@@ -323,8 +346,11 @@
 <div class="layout">
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <h1>📒 学习笔记</h1>
+      <h1>📒 李解万物小笔记</h1>
       <div class="subtitle" id="statsText">和 Atom 聊出来的知识库</div>
+    </div>
+    <div class="search-box">
+      <input class="search-input" id="searchInput" type="text" placeholder="搜索知识点..." oninput="onSearch(this.value)">
     </div>
     <div class="category-filters" id="catFilters"></div>
     <div class="list-container" id="listContainer"></div>
@@ -343,6 +369,7 @@
 <script>
 let data = { categories: [], entries: [] };
 let activeCategory = 'all';
+let searchQuery = '';
 let activeIndex = -1;
 const isMobile = () => window.innerWidth <= 640;
 
@@ -377,9 +404,24 @@ function filterCat(cat) {
   if (visible.length > 0) selectItem(0);
 }
 
+function onSearch(q) {
+  searchQuery = q.trim().toLowerCase();
+  renderList();
+  const visible = getVisibleEntries();
+  if (visible.length > 0) selectItem(0);
+}
+
+function entryMatchesSearch(e, q) {
+  if (!q) return true;
+  const haystack = [e.title, e.summary, ...(e.notes || []).map(n => n.q + ' ' + n.a)].join(' ').toLowerCase();
+  return q.split(/\s+/).every(word => haystack.includes(word));
+}
+
 function getVisibleEntries() {
-  if (activeCategory === 'all') return data.entries;
-  return data.entries.filter(e => e.category === activeCategory);
+  let entries = data.entries;
+  if (activeCategory !== 'all') entries = entries.filter(e => e.category === activeCategory);
+  if (searchQuery) entries = entries.filter(e => entryMatchesSearch(e, searchQuery));
+  return entries;
 }
 
 function updateStats() {
@@ -429,17 +471,20 @@ function selectItem(index) {
   const catColor = cat ? cat.color : '#999';
   const noteCount = e.notes ? e.notes.length : 0;
 
-  const qaHtml = (e.notes || []).map((n, i) => `
-    <div class="qa-card open" onclick="toggleQA(this)">
+  const qaHtml = (e.notes || []).map((n, i) => {
+    const matchesQ = searchQuery && (n.q + ' ' + n.a).toLowerCase().includes(searchQuery);
+    const isOpen = !searchQuery || matchesQ;
+    return `
+    <div class="qa-card ${isOpen ? 'open' : ''}" onclick="toggleQA(this)">
       <div class="qa-question">
-        <span>${esc(n.q)}</span>
+        <span>${highlightText(esc(n.q))}</span>
         <span class="arrow">›</span>
       </div>
       <div class="qa-answer">
-        <div class="qa-answer-inner">${formatText(n.a)}</div>
+        <div class="qa-answer-inner">${highlightText(formatText(n.a))}</div>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 
   document.getElementById('contentInner').innerHTML = `
     <div class="back-btn" onclick="goBack()">← 返回</div>
@@ -453,7 +498,7 @@ function selectItem(index) {
     </div>
     <div class="article-summary">${esc(e.summary || '')}</div>
     <div class="qa-list">${qaHtml}</div>
-    <div class="footer">Atom ⚛️ · 佳璇的学习笔记</div>
+    <div class="footer">Atom ⚛️ · 李解万物小笔记</div>
   `;
 
   if (isMobile()) {
@@ -474,6 +519,16 @@ function goBack() {
 function esc(s) {
   if (!s) return '';
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function highlightText(html) {
+  if (!searchQuery) return html;
+  const words = searchQuery.split(/\s+/).filter(Boolean);
+  words.forEach(w => {
+    const re = new RegExp('(' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+    html = html.replace(/>([^<]*)</g, (match, text) => '>' + text.replace(re, '<span class="search-highlight">$1</span>') + '<');
+  });
+  return html;
 }
 
 function formatText(s) {
