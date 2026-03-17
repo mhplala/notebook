@@ -206,6 +206,35 @@
           "a": "公司类比：\n· Boss Agent → CEO，下达总体战略\n· 各个Agent → 员工，各自负责不同部门\n· 大模型 → 云端总部，给出决策\n· 本地执行器 → 员工手上的工具\n\n工作流程：\nBoss制定策略 → 分配任务给各Agent → Agent读取本地状态 → Agent调用自己的skill执行 → 结果回传Boss → Boss调整下一步\n\nAIOS vs 普通Agent的区别：\n· AIOS：每个Agent有固定技能 + Boss统一调度（像公司有固定部门和CEO）\n· 普通Agent：动态生成计划，按需调用能力（像多能型自由职业者）\n\n本质是一样的——每个Agent都独立，只是AIOS加了团队分工和领导机制。优势是可扩展、易管理、安全可控。"
         }
       ]
+    },
+    {
+      "id": "20260317-saas-aaas",
+      "date": "2026-03-17",
+      "category": "tech",
+      "title": "SaaS 与 AaaS——软件和AI的服务化模式",
+      "summary": "SaaS是把软件做成在线服务按月订阅使用，AaaS是把AI能力做成API供调用。两者层层叠加：AI能力（AaaS）是底层，上层应用（SaaS）把它包装成产品。",
+      "notes": [
+        {
+          "q": "SaaS 到底是什么？",
+          "a": "SaaS = Software as a Service（软件即服务）。软件不用装在自己电脑上，直接通过网页或APP在线使用。公司负责服务器、运维、更新、安全，用户只需注册账号、付费订阅、在线使用。比如 Google Docs、Notion、Figma、Slack 都是 SaaS。"
+        },
+        {
+          "q": "SaaS 和传统软件有什么区别？",
+          "a": "传统软件是买断制、自己装在本地、自己运维、升级困难、初期成本高。SaaS 是按月订阅、平台维护、自动更新、低成本启动。对企业来说省事省钱，所以现在大量创业公司在做 SaaS 产品。"
+        },
+        {
+          "q": "AaaS 是什么？",
+          "a": "AaaS = AI as a Service（AI即服务）。把AI能力做成API或平台，别人调用就能用AI。比如 OpenAI 提供 GPT API、Anthropic 提供 Claude、Google 提供 Gemini。开发者不用自己训练模型，直接调API就能获得文本生成、图像生成、语音识别等AI能力。"
+        },
+        {
+          "q": "SaaS 和 AaaS 是什么关系？",
+          "a": "可以理解为两层：底层是 AI 能力（AaaS），比如 GPT、Claude 这些大模型API；上层是 SaaS 产品，比如用 GPT API 做的智能客服、用 Claude 做的写作助手。AaaS 提供原材料，SaaS 把它包装成用户能直接用的产品。"
+        },
+        {
+          "q": "\"X as a Service\" 还有哪些？",
+          "a": "IaaS（基础设施即服务）= 租服务器，如 AWS、阿里云；PaaS（平台即服务）= 租开发平台，如 Vercel、Railway；BaaS（后端即服务）= 租后端能力，如 Firebase、Supabase。本质都是同一个思路：自己不建，租别人的。"
+        }
+      ]
     }
   ]
 }
