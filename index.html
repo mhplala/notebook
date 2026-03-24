@@ -330,6 +330,61 @@
 
   @media (min-width: 641px) { .back-btn { display: none !important; } }
 
+  /* 图片展示 */
+  .article-images {
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .article-image-wrap {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--q-bg);
+  }
+
+  .article-image {
+    width: 100%;
+    display: block;
+    cursor: zoom-in;
+    transition: opacity 0.2s;
+  }
+
+  .article-image:hover { opacity: 0.92; }
+
+  /* Lightbox */
+  .lightbox-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+  }
+
+  .lightbox-img {
+    max-width: 92vw;
+    max-height: 92vh;
+    border-radius: 8px;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.5);
+  }
+
+  .lightbox-close {
+    position: fixed;
+    top: 16px; right: 20px;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+
+  .lightbox-close:hover { opacity: 1; }
+
   .back-btn {
     align-items: center;
     gap: 4px;
@@ -497,6 +552,7 @@ function selectItem(index) {
       </div>
     </div>
     <div class="article-summary">${esc(e.summary || '')}</div>
+    ${renderImages(e)}
     <div class="qa-list">${qaHtml}</div>
     <div class="footer">Atom ⚛️ · 李解万物小笔记</div>
   `;
@@ -529,6 +585,21 @@ function highlightText(html) {
     html = html.replace(/>([^<]*)</g, (match, text) => '>' + text.replace(re, '<span class="search-highlight">$1</span>') + '<');
   });
   return html;
+}
+
+function renderImages(e) {
+  if (!e.images || e.images.length === 0) return '';
+  return '<div class="article-images">' + e.images.map(img =>
+    `<div class="article-image-wrap"><img src="${esc(img)}" alt="参考图片" class="article-image" onclick="openLightbox(this.src)"></div>`
+  ).join('') + '</div>';
+}
+
+function openLightbox(src) {
+  const overlay = document.createElement('div');
+  overlay.className = 'lightbox-overlay';
+  overlay.innerHTML = `<img src="${src}" class="lightbox-img"><div class="lightbox-close" onclick="this.parentElement.remove()">✕</div>`;
+  overlay.addEventListener('click', function(ev) { if (ev.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
 }
 
 function formatText(s) {
