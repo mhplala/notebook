@@ -466,9 +466,18 @@ function onSearch(q) {
   if (visible.length > 0) selectItem(0);
 }
 
+function getEntryNotes(e) {
+  if (Array.isArray(e.notes)) return e.notes;
+  if (typeof e.notes === 'string' && e.notes.trim()) {
+    return [{ q: '笔记内容', a: e.notes.trim() }];
+  }
+  return [];
+}
+
 function entryMatchesSearch(e, q) {
   if (!q) return true;
-  const haystack = [e.title, e.summary, ...(e.notes || []).map(n => n.q + ' ' + n.a)].join(' ').toLowerCase();
+  const notes = getEntryNotes(e);
+  const haystack = [e.title, e.summary, ...notes.map(n => n.q + ' ' + n.a)].join(' ').toLowerCase();
   return q.split(/\s+/).every(word => haystack.includes(word));
 }
 
@@ -480,7 +489,7 @@ function getVisibleEntries() {
 }
 
 function updateStats() {
-  const totalNotes = data.entries.reduce((sum, e) => sum + (e.notes ? e.notes.length : 0), 0);
+  const totalNotes = data.entries.reduce((sum, e) => sum + getEntryNotes(e).length, 0);
   document.getElementById('statsText').textContent = `${data.entries.length} 个话题 · ${totalNotes} 个知识点`;
 }
 
@@ -524,10 +533,12 @@ function selectItem(index) {
   const cat = data.categories.find(c => c.id === e.category);
   const catName = cat ? cat.emoji + ' ' + cat.name : '';
   const catColor = cat ? cat.color : '#999';
-  const noteCount = e.notes ? e.notes.length : 0;
+  const notes = getEntryNotes(e);
+  const noteCount = notes.length;
 
-  const qaHtml = (e.notes || []).map((n, i) => {
-    const matchesQ = searchQuery && (n.q + ' ' + n.a).toLowerCase().includes(searchQuery);
+  const qaHtml = notes.map((n, i) => {
+    const noteText = `${n.q} ${n.a}`.toLowerCase();
+    const matchesQ = searchQuery && noteText.includes(searchQuery);
     const isOpen = !searchQuery || matchesQ;
     return `
     <div class="qa-card ${isOpen ? 'open' : ''}" onclick="toggleQA(this)">
