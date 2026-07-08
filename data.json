@@ -33,6 +33,31 @@
   ],
   "entries": [
     {
+      "id": "20260708-aftermeet-v021-analysis",
+      "date": "2026-07-08",
+      "category": "tech",
+      "title": "Aftermeet (v0.2.1) 本地会议转写助手技术拆解与特性分析",
+      "summary": "基于 SwiftUI 架构与 Whisper.cpp 打造的 macOS 原生本地会议记录与转写工具，集成了飞书日历与私用 LLM API。",
+      "notes": [
+        {
+          "q": "Aftermeet 是一个什么样的应用？",
+          "a": "Aftermeet 是一款专为 Mac 用户设计的本地会议记录与智能转写应用（Bundle ID: app.siku.aftermeet）。它采用原生 SwiftUI 框架开发，相较于 Electron 等 Web 技术打包的应用，具备极其轻量、高性能和低内存占用的特点。其核心功能是将会中音频本地实时转写为文字，并结合 AI 进行会议总结与问答。"
+        },
+        {
+          "q": "它是如何实现本地音频转写的？",
+          "a": "应用集成了 whisper.cpp 方案。在首次使用或有需要时，会通过 ModelDownloader 模块自动从 Hugging Face 或国内镜像源（hf-mirror.com）下载 GGML 格式的 Whisper 语音识别模型（例如 ggml-medium-q5_0.bin）。并在本地启动 Whisper 服务（whisper-server），默认占用本地端口，通过高性能的本地 C++ 接口完成离线、高隐私保护的语音转文字（STT）工作。"
+        },
+        {
+          "q": "在音频采集和会议关联方面有什么技术特点？",
+          "a": "在采集侧，应用调用了 macOS 的 ScreenCaptureKit 和 AVFoundation 框架，支持同时录制麦克风声音和系统扬声器声音（即会议中其他参会者的发言），实现完整的双向音频会中转写。在会议关联侧，应用深度集成了飞书日历（Feishu Calendar），能够本地缓存日历数据（calendar-cache.json），并智能匹配当前录音与日历日程（calendarSuggestions），自动将转写文本和日程绑定。"
+        },
+        {
+          "q": "它的 AI 总结和数据存储机制是怎样的？",
+          "a": "在总结侧，应用使用了 Siku 的私用 AI 代理（siku-proxy），请求发送至 https://14.103.38.223/v1/chat/completions，并携带 X-Siku-App 特殊头进行鉴权。这套机制能够将转写完的会议文本发送给 LLM 进行结构化总结和会后问答。在存储侧，所有的会议记录、转写文本、日历映射等数据全部保存在本地的 SQLite 数据库（DB）中，最大程度保证了商业会议数据的私密性与本地控制。"
+        }
+      ]
+    },
+    {
       "id": "20260316-gut-brain",
       "date": "2026-03-16",
       "category": "biology",
